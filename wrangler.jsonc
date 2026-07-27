@@ -1,6 +1,6 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "craune-landing",
+	"name": "craune",
 	"compatibility_date": "2026-07-27",
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"main": "@astrojs/cloudflare/entrypoints/server",
