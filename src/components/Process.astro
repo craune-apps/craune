@@ -1,0 +1,44 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="process" class="section-pad scroll-mt-24">
+	<div class="container-craune">
+		<SectionHeading
+			eyebrow={t.process.eyebrow}
+			title={t.process.title}
+			subtitle={t.process.subtitle}
+		/>
+
+		<ol class="mt-16 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+			{
+				t.process.steps.map((step, index) => (
+					<li class="reveal relative flex flex-col gap-3" style={`transition-delay: ${index * 80}ms;`}>
+						{/* Línea que conecta los pasos en escritorio */}
+						<div class="mb-3 flex items-center gap-4">
+							<span class="grid size-10 shrink-0 place-items-center rounded-full border border-gold/30 bg-gold/5 font-display text-sm font-semibold text-gold">
+								{step.number}
+							</span>
+							<span
+								class="hidden h-px flex-1 bg-gradient-to-r from-line to-transparent lg:block"
+								aria-hidden="true"
+							/>
+						</div>
+
+						<h3 class="text-h3">{step.title}</h3>
+						<p class="leading-relaxed text-muted">{step.description}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>

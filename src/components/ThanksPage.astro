@@ -1,0 +1,51 @@
+---
+/**
+ * Confirmación de envío. Solo la ven quienes mandan el formulario con el
+ * JavaScript desactivado: con JS, la confirmación aparece en la propia página.
+ */
+import { useTranslations, localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="relative flex min-h-[70vh] items-center overflow-hidden py-24">
+	<div class="grid-backdrop pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+
+	<div class="container-craune">
+		<div class="flex max-w-xl flex-col items-start gap-6">
+			<span
+				class="grid size-14 place-items-center rounded-full border border-gold/30 bg-gold/10 text-gold"
+			>
+				<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path
+						d="m5 13 4 4L19 7"
+						stroke="currentColor"
+						stroke-width="2.2"
+						stroke-linecap="round"
+						stroke-linejoin="round"></path>
+				</svg>
+			</span>
+
+			<h1 class="text-h2">{t.thanks.title}</h1>
+			<p class="text-lead text-muted">{t.thanks.body}</p>
+
+			<a href={localizePath('/', lang)} class="btn btn-ghost mt-2">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path
+						d="M19 12H5m0 0 6 6m-6-6 6-6"
+						stroke="currentColor"
+						stroke-width="1.8"
+						stroke-linecap="round"
+						stroke-linejoin="round"></path>
+				</svg>
+				{t.thanks.back}
+			</a>
+		</div>
+	</div>
+</section>

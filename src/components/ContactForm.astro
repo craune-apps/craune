@@ -1,0 +1,197 @@
+---
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const f = t.contact.form;
+
+const fieldClass =
+	'w-full rounded-xl border border-line-soft bg-surface/60 px-4 py-3 text-[0.9375rem] text-bone placeholder:text-faint transition-colors focus:border-gold/50 focus:bg-surface focus:outline-none';
+const labelClass = 'mb-2 block text-xs font-medium tracking-wide text-muted uppercase';
+---
+
+{/*
+  El formulario funciona sin JavaScript (action + method reales).
+  Con JavaScript se envía por fetch y se muestra el resultado sin recargar.
+*/}
+<form
+	method="post"
+	action="/api/contact"
+	class="flex flex-col gap-5"
+	data-contact-form
+	data-error-generic={f.errorGeneric}
+	data-error-required={f.errorRequired}
+	data-error-email={f.errorEmail}
+	novalidate
+>
+	<input type="hidden" name="lang" value={lang} />
+
+	{/* Trampa para bots: invisible para personas, irresistible para scripts. */}
+	<div class="absolute left-[-9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+		<label for="website">Website</label>
+		<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+	</div>
+
+	<div class="grid gap-5 sm:grid-cols-2">
+		<div>
+			<label class={labelClass} for="name">{f.name}</label>
+			<input
+				class={fieldClass}
+				type="text"
+				id="name"
+				name="name"
+				required
+				autocomplete="name"
+				placeholder={f.namePlaceholder}
+			/>
+		</div>
+
+		<div>
+			<label class={labelClass} for="email">{f.email}</label>
+			<input
+				class={fieldClass}
+				type="email"
+				id="email"
+				name="email"
+				required
+				autocomplete="email"
+				placeholder={f.emailPlaceholder}
+			/>
+		</div>
+
+		<div>
+			<label class={labelClass} for="company">{f.company}</label>
+			<input
+				class={fieldClass}
+				type="text"
+				id="company"
+				name="company"
+				autocomplete="organization"
+				placeholder={f.companyPlaceholder}
+			/>
+		</div>
+
+		<div>
+			<label class={labelClass} for="budget">{f.budget}</label>
+			<select class={fieldClass} id="budget" name="budget">
+				{f.budgetOptions.map((option) => <option value={option}>{option}</option>)}
+			</select>
+		</div>
+	</div>
+
+	<div>
+		<label class={labelClass} for="message">{f.message}</label>
+		<textarea
+			class={fieldClass}
+			id="message"
+			name="message"
+			required
+			rows="5"
+			placeholder={f.messagePlaceholder}></textarea>
+	</div>
+
+	{/* Mensaje de error o de éxito. `aria-live` hace que los lectores de
+	    pantalla lo anuncien en cuanto aparece. */}
+	<p
+		class="hidden rounded-xl border px-4 py-3 text-sm"
+		role="status"
+		aria-live="polite"
+		data-form-feedback
+	>
+	</p>
+
+	<div class="flex flex-wrap items-center justify-between gap-4 pt-1">
+		<p class="max-w-xs text-xs leading-relaxed text-faint">{f.privacy}</p>
+		<button type="submit" class="btn btn-primary" data-submit data-idle={f.submit} data-busy={f.submitting}>
+			{f.submit}
+		</button>
+	</div>
+</form>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+	const feedback = document.querySelector<HTMLParagraphElement>('[data-form-feedback]');
+	const submit = document.querySelector<HTMLButtonElement>('[data-submit]');
+
+	if (form && feedback && submit) {
+		const ERROR_CLASSES = ['border-red-500/40', 'bg-red-500/10', 'text-red-200'];
+		const SUCCESS_CLASSES = ['border-gold/40', 'bg-gold/10', 'text-gold-bright'];
+
+		const showMessage = (text: string, kind: 'error' | 'success') => {
+			feedback.textContent = text;
+			feedback.classList.remove('hidden', ...ERROR_CLASSES, ...SUCCESS_CLASSES);
+			feedback.classList.add(...(kind === 'error' ? ERROR_CLASSES : SUCCESS_CLASSES));
+		};
+
+		const setBusy = (busy: boolean) => {
+			submit.disabled = busy;
+			submit.textContent = (busy ? submit.dataset.busy : submit.dataset.idle) ?? '';
+			submit.classList.toggle('opacity-60', busy);
+			submit.classList.toggle('cursor-not-allowed', busy);
+		};
+
+		/** Validación mínima en cliente, para no gastar una petición en vano. */
+		const findLocalError = (data: Record<string, string>): string | null => {
+			if (!data.name?.trim() || !data.email?.trim() || !data.message?.trim()) {
+				return form.dataset.errorRequired ?? null;
+			}
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())) {
+				return form.dataset.errorEmail ?? null;
+			}
+			return null;
+		};
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			feedback.classList.add('hidden');
+
+			const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+
+			const localError = findLocalError(data);
+			if (localError) {
+				showMessage(localError, 'error');
+				return;
+			}
+
+			setBusy(true);
+			let succeeded = false;
+
+			try {
+				const response = await fetch('/api/contact', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data),
+				});
+
+				const result = (await response.json().catch(() => ({}))) as {
+					ok?: boolean;
+					message?: string;
+				};
+
+				if (response.ok && result.ok) {
+					succeeded = true;
+					form.reset();
+					showMessage(result.message ?? '', 'success');
+					// Bloqueamos el formulario tras el envío: no tiene sentido
+					// dejarlo invitando a mandar lo mismo dos veces.
+					form
+						.querySelectorAll<HTMLElement>('input, select, textarea, button')
+						.forEach((el) => el.setAttribute('disabled', 'true'));
+				} else {
+					showMessage(result.message ?? form.dataset.errorGeneric ?? '', 'error');
+				}
+			} catch {
+				// Sin conexión, o el endpoint no responde.
+				showMessage(form.dataset.errorGeneric ?? '', 'error');
+			} finally {
+				// Tras un envío correcto el botón se queda deshabilitado a propósito.
+				if (!succeeded) setBusy(false);
+			}
+		});
+	}
+</script>

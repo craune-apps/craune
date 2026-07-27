@@ -1,0 +1,10 @@
+# Copia este fichero a `.dev.vars` para desarrollo local.
+# `.dev.vars` está en .gitignore: nunca subas tus claves al repositorio.
+#
+# La clave de Resend se saca en https://resend.com/api-keys
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+
+# Estas dos también están en wrangler.jsonc para producción;
+# aquí puedes sobreescribirlas mientras desarrollas.
+CONTACT_TO_EMAIL=hola@craune.com
+CONTACT_FROM_EMAIL=Craune Web <web@craune.com>

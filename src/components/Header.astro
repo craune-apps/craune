@@ -1,0 +1,174 @@
+---
+import Logo from './Logo.astro';
+import LanguagePicker from './LanguagePicker.astro';
+import { useTranslations, localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const home = localizePath('/', lang);
+
+const links = [
+	{ href: '#services', label: t.nav.services },
+	{ href: '#work', label: t.nav.work },
+	{ href: '#process', label: t.nav.process },
+	{ href: '#about', label: t.nav.about },
+];
+---
+
+<header id="site-header" class="fixed inset-x-0 top-0 z-50" data-header data-scrolled="false">
+	<div class="container-craune flex h-18 items-center justify-between gap-6">
+		<a href={home} class="shrink-0" aria-label="Craune">
+			<Logo />
+		</a>
+
+		<nav class="hidden items-center gap-8 md:flex" aria-label="Craune">
+			{
+				links.map(({ href, label }) => (
+					<a
+						href={href}
+						class="relative text-sm text-muted transition-colors hover:text-bone after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-0 after:bg-gold after:transition-[width] after:duration-300 hover:after:w-full"
+					>
+						{label}
+					</a>
+				))
+			}
+		</nav>
+
+		<div class="flex items-center gap-3">
+			<LanguagePicker lang={lang} class="hidden sm:flex" />
+			<a href="#contact" class="btn btn-primary hidden py-2.5 text-sm sm:inline-flex">
+				{t.nav.cta}
+			</a>
+
+			<button
+				type="button"
+				class="grid size-10 place-items-center rounded-full border border-line-soft text-bone md:hidden"
+				aria-label={t.nav.openMenu}
+				aria-expanded="false"
+				aria-controls="mobile-menu"
+				data-menu-toggle
+				data-label-open={t.nav.openMenu}
+				data-label-close={t.nav.closeMenu}
+			>
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path
+						d="M4 7h16M4 12h16M4 17h16"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						data-icon-open></path>
+					<path
+						d="M6 6l12 12M18 6L6 18"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						class="hidden"
+						data-icon-close></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	{/* Menú móvil: oculto por defecto, se despliega al pulsar el botón */}
+	<div
+		id="mobile-menu"
+		class="hidden border-t border-line-soft bg-ink/95 backdrop-blur-xl md:hidden"
+		data-menu-panel
+	>
+		<nav class="container-craune flex flex-col gap-1 py-5" aria-label="Craune">
+			{
+				[...links, { href: '#contact', label: t.nav.contact }].map(({ href, label }) => (
+					<a
+						href={href}
+						class="rounded-lg px-2 py-3 text-base text-muted transition-colors hover:bg-surface hover:text-bone"
+						data-menu-link
+					>
+						{label}
+					</a>
+				))
+			}
+			<div class="mt-3 flex items-center justify-between border-t border-line-soft pt-4">
+				<LanguagePicker lang={lang} />
+				<a href="#contact" class="btn btn-primary py-2.5 text-sm" data-menu-link>
+					{t.nav.cta}
+				</a>
+			</div>
+		</nav>
+	</div>
+</header>
+
+{/* Reserva el alto de la cabecera fija para que no tape el inicio del hero */}
+<div class="h-18" aria-hidden="true"></div>
+
+<style>
+	/* La cabecera es transparente sobre el hero y se vuelve sólida al bajar.
+	   Se controla con un atributo en vez de con clases sueltas para que el
+	   estado sea inspeccionable y no dependa del orden de las utilidades. */
+	[data-header] {
+		border-bottom: 1px solid transparent;
+		transition:
+			background-color 0.3s ease,
+			border-color 0.3s ease,
+			backdrop-filter 0.3s ease;
+	}
+
+	[data-header][data-scrolled='true'] {
+		background-color: color-mix(in oklab, var(--color-ink) 82%, transparent);
+		border-bottom-color: var(--color-line-soft);
+		backdrop-filter: blur(16px);
+	}
+</style>
+
+<script>
+	const header = document.querySelector<HTMLElement>('[data-header]');
+	const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+	const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
+	const iconOpen = document.querySelector<SVGPathElement>('[data-icon-open]');
+	const iconClose = document.querySelector<SVGPathElement>('[data-icon-close]');
+
+	// La cabecera se vuelve sólida en cuanto te separas del inicio.
+	if (header) {
+		const syncScrollState = () => {
+			header.dataset.scrolled = String(window.scrollY > 24);
+		};
+		syncScrollState();
+		window.addEventListener('scroll', syncScrollState, { passive: true });
+	}
+
+	// Menú móvil
+	if (toggle && panel) {
+		const setOpen = (open: boolean) => {
+			panel.classList.toggle('hidden', !open);
+			toggle.setAttribute('aria-expanded', String(open));
+			toggle.setAttribute(
+				'aria-label',
+				(open ? toggle.dataset.labelClose : toggle.dataset.labelOpen) ?? '',
+			);
+			iconOpen?.classList.toggle('hidden', open);
+			iconClose?.classList.toggle('hidden', !open);
+		};
+
+		toggle.addEventListener('click', () => {
+			setOpen(panel.classList.contains('hidden'));
+		});
+
+		// Al elegir una sección, el menú se cierra solo.
+		panel.querySelectorAll('[data-menu-link]').forEach((link) => {
+			link.addEventListener('click', () => setOpen(false));
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') setOpen(false);
+		});
+
+		// Si el viewport crece hasta escritorio, el panel deja de tener sentido.
+		window.matchMedia('(min-width: 768px)').addEventListener('change', (event) => {
+			if (event.matches) setOpen(false);
+		});
+	}
+</script>

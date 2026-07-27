@@ -1,0 +1,71 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="work" class="section-pad scroll-mt-24 bg-surface/40">
+	<div class="container-craune">
+		<SectionHeading eyebrow={t.work.eyebrow} title={t.work.title} subtitle={t.work.subtitle} />
+
+		<div class="mt-16 flex flex-col">
+			{
+				t.work.items.map((project, index) => (
+					<>
+						{index > 0 && <hr class="hairline" />}
+
+						<a
+							href={project.href}
+							class="reveal group grid grid-cols-1 items-start gap-x-10 gap-y-4 py-9 transition-colors md:grid-cols-12"
+							style={`transition-delay: ${index * 80}ms;`}
+						>
+							<div class="md:col-span-4">
+								<h3 class="text-h3 transition-colors duration-300 group-hover:text-gold">
+									{project.name}
+								</h3>
+								<p class="mt-2 text-sm text-faint">{project.category}</p>
+							</div>
+
+							<p class="leading-relaxed text-muted md:col-span-6">{project.description}</p>
+
+							<div class="flex items-center gap-2 text-sm text-faint transition-colors duration-300 group-hover:text-bone md:col-span-2 md:justify-end">
+								<span>{t.work.viewLabel}</span>
+								<svg
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									aria-hidden="true"
+									class="transition-transform duration-300 group-hover:translate-x-1"
+								>
+									<path
+										d="M5 12h14m0 0-6-6m6 6-6 6"
+										stroke="currentColor"
+										stroke-width="1.8"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</div>
+
+							<ul class="flex flex-wrap gap-2 md:col-span-10 md:col-start-5">
+								{project.tags.map((tag) => (
+									<li class="rounded-full border border-line-soft px-3 py-1 text-xs text-faint">
+										{tag}
+									</li>
+								))}
+							</ul>
+						</a>
+					</>
+				))
+			}
+		</div>
+	</div>
+</section>

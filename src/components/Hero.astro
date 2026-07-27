@@ -1,0 +1,81 @@
+---
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="relative overflow-hidden pt-20 pb-24 md:pt-28 md:pb-32">
+	{/* Fondo: retícula técnica + un halo dorado muy tenue detrás del titular */}
+	<div class="grid-backdrop pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+	<div
+		class="pointer-events-none absolute -top-40 left-1/2 -z-10 h-168 w-248 max-w-[140vw] -translate-x-1/2 rounded-full opacity-[0.13] blur-[120px]"
+		style="background: radial-gradient(circle, var(--color-gold) 0%, transparent 62%);"
+		aria-hidden="true"
+	>
+	</div>
+
+	<div class="container-craune">
+		<div class="flex max-w-4xl flex-col items-start gap-7">
+			<span
+				class="reveal inline-flex items-center gap-2 rounded-full border border-line-soft bg-surface/60 px-4 py-1.5 text-xs font-medium tracking-wide text-muted"
+			>
+				<span class="relative flex size-1.5">
+					<span
+						class="absolute inline-flex size-full animate-ping rounded-full bg-gold opacity-70"
+					></span>
+					<span class="relative inline-flex size-1.5 rounded-full bg-gold"></span>
+				</span>
+				{t.hero.badge}
+			</span>
+
+			<h1 class="reveal text-display" style="transition-delay: 80ms;">
+				{t.hero.titleLead}{' '}
+				<span class="text-gradient-gold">{t.hero.titleAccent}</span>
+			</h1>
+
+			<p class="reveal text-lead max-w-2xl text-muted" style="transition-delay: 160ms;">
+				{t.hero.subtitle}
+			</p>
+
+			<div class="reveal flex flex-wrap items-center gap-3" style="transition-delay: 240ms;">
+				<a href="#contact" class="btn btn-primary">
+					{t.hero.ctaPrimary}
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+						<path
+							d="M5 12h14m0 0-6-6m6 6-6 6"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"></path>
+					</svg>
+				</a>
+				<a href="#services" class="btn btn-ghost">{t.hero.ctaSecondary}</a>
+			</div>
+		</div>
+
+		{/* Cifras de apoyo */}
+		<dl
+			class="reveal mt-20 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line-soft bg-line-soft sm:grid-cols-3"
+			style="transition-delay: 320ms;"
+		>
+			{
+				/* `flex-col-reverse` pinta la cifra arriba manteniendo el orden
+				   semántico correcto: primero el término, después el valor. */
+				t.hero.stats.map((stat) => (
+					<div class="flex flex-col-reverse gap-1.5 bg-ink px-6 py-7">
+						<dt class="text-sm leading-snug text-faint">{stat.label}</dt>
+						<dd class="font-display text-3xl font-semibold tracking-tight text-bone">
+							{stat.value}
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+	</div>
+</section>

@@ -1,0 +1,30 @@
+---
+/**
+ * Wordmark de Craune: una corona minimalista de tres picos ("cr-own")
+ * junto al nombre. Hereda el color del texto, así que funciona
+ * sobre cualquier fondo sin necesidad de variantes.
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span class:list={['inline-flex items-center gap-2.5 select-none', className]}>
+	<svg
+		width="26"
+		height="26"
+		viewBox="0 0 24 24"
+		fill="none"
+		aria-hidden="true"
+		class="shrink-0 text-gold"
+	>
+		<path
+			d="M2.5 7.2 6.4 11.1 12 3.8l5.6 7.3 3.9-3.9-1.7 12.2a1 1 0 0 1-1 .86H5.2a1 1 0 0 1-1-.86L2.5 7.2Z"
+			stroke="currentColor"
+			stroke-width="1.6"
+			stroke-linejoin="round"></path>
+	</svg>
+	<span class="font-display text-[1.0625rem] font-semibold tracking-tight">Craune</span>
+</span>

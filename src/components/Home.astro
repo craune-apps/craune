@@ -1,0 +1,29 @@
+---
+/**
+ * El cuerpo de la portada, compartido por las dos versiones de idioma.
+ * Cada página (`/` y `/en/`) solo aporta el idioma y el layout, así el
+ * contenido nunca se duplica ni se desincroniza entre idiomas.
+ */
+import Hero from './Hero.astro';
+import Services from './Services.astro';
+import Work from './Work.astro';
+import Process from './Process.astro';
+import About from './About.astro';
+import Testimonials from './Testimonials.astro';
+import Contact from './Contact.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<Hero lang={lang} />
+<Services lang={lang} />
+<Work lang={lang} />
+<Process lang={lang} />
+<About lang={lang} />
+<Testimonials lang={lang} />
+<Contact lang={lang} />

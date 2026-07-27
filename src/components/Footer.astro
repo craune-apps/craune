@@ -1,0 +1,88 @@
+---
+import Logo from './Logo.astro';
+import { useTranslations, localizePath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+
+const navLinks = [
+	{ href: '#services', label: t.nav.services },
+	{ href: '#work', label: t.nav.work },
+	{ href: '#process', label: t.nav.process },
+	{ href: '#about', label: t.nav.about },
+	{ href: '#contact', label: t.nav.contact },
+];
+
+const socials = [
+	{ href: 'https://github.com/craune-apps', label: 'GitHub' },
+	{ href: 'https://www.linkedin.com/company/craune', label: 'LinkedIn' },
+	{ href: 'https://x.com/craune', label: 'X' },
+];
+---
+
+<footer class="border-t border-line-soft">
+	<div class="container-craune py-16">
+		<div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-12">
+			<div class="flex flex-col gap-4 lg:col-span-5">
+				<a href={localizePath('/', lang)} aria-label="Craune">
+					<Logo />
+				</a>
+				<p class="max-w-xs text-sm leading-relaxed text-faint">{t.footer.tagline}</p>
+			</div>
+
+			<nav class="flex flex-col gap-3 lg:col-span-3" aria-label={t.footer.navTitle}>
+				<h2 class="text-xs font-medium tracking-wide text-muted uppercase">{t.footer.navTitle}</h2>
+				{
+					navLinks.map(({ href, label }) => (
+						<a href={href} class="text-sm text-faint transition-colors hover:text-bone">
+							{label}
+						</a>
+					))
+				}
+			</nav>
+
+			<div class="flex flex-col gap-3 lg:col-span-2">
+				<h2 class="text-xs font-medium tracking-wide text-muted uppercase">
+					{t.footer.contactTitle}
+				</h2>
+				<a
+					href={`mailto:${t.contact.email}`}
+					class="text-sm text-faint transition-colors hover:text-bone"
+				>
+					{t.contact.email}
+				</a>
+			</div>
+
+			<nav class="flex flex-col gap-3 lg:col-span-2" aria-label={t.footer.socialTitle}>
+				<h2 class="text-xs font-medium tracking-wide text-muted uppercase">
+					{t.footer.socialTitle}
+				</h2>
+				{
+					socials.map(({ href, label }) => (
+						<a
+							href={href}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-sm text-faint transition-colors hover:text-bone"
+						>
+							{label}
+						</a>
+					))
+				}
+			</nav>
+		</div>
+
+		<div
+			class="mt-14 flex flex-col gap-4 border-t border-line-soft pt-8 text-xs text-faint sm:flex-row sm:items-center sm:justify-between"
+		>
+			<p>&copy; {year} Craune. {t.footer.rights}</p>
+			<p>{t.footer.builtWith}</p>
+		</div>
+	</div>
+</footer>

@@ -1,0 +1,47 @@
+---
+import { LANGUAGES, type Lang } from '../i18n/ui';
+import { getAlternatePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+	lang: Lang;
+	class?: string;
+}
+
+const { lang, class: className } = Astro.props;
+const t = useTranslations(lang);
+
+const options = (Object.keys(LANGUAGES) as Lang[]).map((code) => ({
+	code,
+	label: code.toUpperCase(),
+	name: LANGUAGES[code],
+	href: getAlternatePath(Astro.url, code),
+	current: code === lang,
+}));
+---
+
+{/* Dos enlaces reales, no un desplegable: mejor para SEO y sin JavaScript. */}
+<nav
+	aria-label={t.nav.langLabel}
+	class:list={[
+		'flex items-center gap-0.5 rounded-full border border-line-soft p-0.5 text-xs font-medium',
+		className,
+	]}
+>
+	{
+		options.map(({ code, label, name, href, current }) => (
+			<a
+				href={href}
+				hreflang={code}
+				lang={code}
+				aria-label={name}
+				aria-current={current ? 'true' : undefined}
+				class:list={[
+					'rounded-full px-2.5 py-1 transition-colors',
+					current ? 'bg-gold text-ink' : 'text-muted hover:text-bone',
+				]}
+			>
+				{label}
+			</a>
+		))
+	}
+</nav>

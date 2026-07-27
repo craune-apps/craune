@@ -1,0 +1,51 @@
+---
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="about" class="section-pad scroll-mt-24 bg-surface/40">
+	<div class="container-craune">
+		<div class="grid gap-14 lg:grid-cols-12 lg:gap-20">
+			<div class="reveal flex flex-col gap-5 lg:col-span-6">
+				<span class="eyebrow">{t.about.eyebrow}</span>
+				<h2 class="text-h2">{t.about.title}</h2>
+			</div>
+
+			<div class="reveal flex flex-col gap-5 lg:col-span-6" style="transition-delay: 100ms;">
+				{t.about.body.map((paragraph) => <p class="leading-relaxed text-muted">{paragraph}</p>)}
+			</div>
+		</div>
+
+		<div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line-soft bg-line-soft sm:grid-cols-2 lg:grid-cols-4">
+			{
+				t.about.values.map((value, index) => (
+					<div
+						class="reveal flex flex-col gap-2 bg-ink px-6 py-8"
+						style={`transition-delay: ${index * 70}ms;`}
+					>
+						<h3 class="flex items-center gap-2.5 font-display text-base font-semibold">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="shrink-0 text-gold">
+								<path
+									d="m5 13 4 4L19 7"
+									stroke="currentColor"
+									stroke-width="2.2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+							</svg>
+							{value.title}
+						</h3>
+						<p class="text-sm leading-relaxed text-muted">{value.description}</p>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>

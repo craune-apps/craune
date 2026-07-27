@@ -1,0 +1,24 @@
+---
+/** Cabecera común a todas las secciones: etiqueta + título + entradilla. */
+interface Props {
+	eyebrow: string;
+	title: string;
+	subtitle?: string;
+	align?: 'left' | 'center';
+	class?: string;
+}
+
+const { eyebrow, title, subtitle, align = 'left', class: className } = Astro.props;
+---
+
+<div
+	class:list={[
+		'reveal flex flex-col gap-5',
+		align === 'center' ? 'items-center text-center' : 'max-w-3xl',
+		className,
+	]}
+>
+	<span class="eyebrow">{eyebrow}</span>
+	<h2 class="text-h2">{title}</h2>
+	{subtitle && <p class="text-lead max-w-2xl text-muted">{subtitle}</p>}
+</div>

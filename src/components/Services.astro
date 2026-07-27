@@ -1,0 +1,50 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="services" class="section-pad scroll-mt-24">
+	<div class="container-craune">
+		<SectionHeading
+			eyebrow={t.services.eyebrow}
+			title={t.services.title}
+			subtitle={t.services.subtitle}
+		/>
+
+		<div class="mt-16 grid gap-5 sm:grid-cols-2">
+			{
+				t.services.items.map((service, index) => (
+					<article
+						class="card reveal group flex flex-col gap-5 p-7 lg:p-9"
+						style={`transition-delay: ${index * 80}ms;`}
+					>
+						<div class="flex items-baseline justify-between gap-4">
+							<h3 class="text-h3">{service.title}</h3>
+							<span class="font-display text-sm font-medium text-faint/60 transition-colors duration-300 group-hover:text-gold">
+								{service.number}
+							</span>
+						</div>
+
+						<p class="leading-relaxed text-muted">{service.description}</p>
+
+						<ul class="mt-auto flex flex-wrap gap-2 pt-2">
+							{service.tags.map((tag) => (
+								<li class="rounded-full border border-line-soft px-3 py-1 text-xs text-faint">
+									{tag}
+								</li>
+							))}
+						</ul>
+					</article>
+				))
+			}
+		</div>
+	</div>
+</section>
