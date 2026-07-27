@@ -1,0 +1,42 @@
+---
+/**
+ * Lo único que ve el visitante cuando `SETTINGS.inConstruction` es `true`.
+ * Se sirve en todas las rutas, así que no lleva enlaces de navegación.
+ */
+import Logo from './Logo.astro';
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<main class="relative flex min-h-dvh items-center overflow-hidden py-24">
+	<div class="grid-backdrop pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+
+	<div class="container-craune">
+		<div class="flex max-w-2xl flex-col items-start gap-7">
+			<Logo />
+
+			<span class="eyebrow">{t.construction.eyebrow}</span>
+
+			<h1 class="text-h2 text-balance">{t.construction.title}</h1>
+
+			<p class="text-lead text-muted">{t.construction.body}</p>
+
+			<p class="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+				<span class="text-muted">{t.construction.emailLabel}</span>
+				<a
+					href={`mailto:${t.contact.email}`}
+					class="font-medium text-gold underline decoration-gold/30 underline-offset-4 transition-colors hover:decoration-gold"
+				>
+					{t.contact.email}
+				</a>
+			</p>
+		</div>
+	</div>
+</main>

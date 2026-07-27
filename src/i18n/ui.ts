@@ -241,6 +241,16 @@ export const ui = {
 			back: 'Volver al inicio',
 		},
 
+		/* Lo único que se ve cuando SETTINGS.inConstruction está activo. */
+		construction: {
+			metaTitle: 'Craune — Próximamente',
+			metaDescription: 'Estamos terminando nuestra web. Vuelve pronto o escríbenos mientras tanto.',
+			eyebrow: 'Próximamente',
+			title: 'Estamos construyendo la nuestra',
+			body: 'Nos dedicamos a lanzar productos digitales para otros, así que la web de Craune tenía que estar a la altura. Estamos en ello.',
+			emailLabel: 'Mientras tanto, escríbenos a',
+		},
+
 		footer: {
 			tagline: 'Estudio de producto digital. Diseñamos y construimos aplicaciones de principio a fin.',
 			navTitle: 'Navegación',
@@ -475,6 +485,15 @@ export const ui = {
 			title: 'Message sent',
 			body: 'Thanks for reaching out. We have received your message and will get back to you within one business day.',
 			back: 'Back to home',
+		},
+
+		construction: {
+			metaTitle: 'Craune — Coming soon',
+			metaDescription: 'We are finishing our site. Check back soon, or write to us in the meantime.',
+			eyebrow: 'Coming soon',
+			title: 'We are building our own',
+			body: 'We spend our days shipping digital products for other people, so the Craune site had to be worth the wait. We are on it.',
+			emailLabel: 'In the meantime, write to us at',
 		},
 
 		footer: {

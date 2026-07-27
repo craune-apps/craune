@@ -5,6 +5,8 @@ import cloudflare from '@astrojs/cloudflare';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
+import { settings } from './src/config/settings';
+
 // https://astro.build/config
 export default defineConfig({
 	// Cambia esto por tu dominio real antes de desplegar.
@@ -32,8 +34,10 @@ export default defineConfig({
 
 	integrations: [
 		sitemap({
-			// Las páginas de confirmación no aportan nada en buscadores.
-			filter: (page) => !/\/(gracias|thanks)\/?$/.test(page),
+			// Las páginas de confirmación no aportan nada en buscadores. Con la web
+			// en obras no se indexa nada, así que el sitemap no llega a generarse;
+			// `src/pages/robots.txt.ts` deja de anunciarlo en ese caso.
+			filter: (page) => !settings.inConstruction && !/\/(gracias|thanks)\/?$/.test(page),
 			i18n: {
 				defaultLocale: 'es',
 				locales: { es: 'es-ES', en: 'en-US' },

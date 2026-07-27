@@ -1,0 +1,54 @@
+---
+/**
+ * Plantilla desnuda: solo `<head>` y el contenido.
+ *
+ * A diferencia de `Layout.astro`, no lleva cabecera ni pie, porque las páginas
+ * que la usan no tienen secciones a las que navegar. Hoy solo la usa la página
+ * de "en construcción".
+ */
+import '../styles/global.css';
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+	lang: Lang;
+	title: string;
+	description: string;
+}
+
+const { lang, title, description } = Astro.props;
+const t = useTranslations(lang);
+
+const ogImage = new URL('/og.png', Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+
+		<title>{title}</title>
+		<meta name="description" content={description} />
+
+		{/* Mientras la web esté en obras no queremos que se indexe nada. */}
+		<meta name="robots" content="noindex, nofollow" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Craune" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:alt" content={t.meta.ogAlt} />
+		<meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<meta name="theme-color" content="#08080b" />
+	</head>
+
+	<body>
+		<slot />
+	</body>
+</html>

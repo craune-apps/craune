@@ -1,8 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import BareLayout from '../layouts/BareLayout.astro';
 import Home from '../components/Home.astro';
+import Construction from '../components/Construction.astro';
+import { useTranslations } from '../i18n/utils';
+import { settings } from '../config/settings';
+
+const t = useTranslations('es');
 ---
 
-<Layout lang="es">
-	<Home lang="es" />
-</Layout>
+{
+	settings.inConstruction ? (
+		<BareLayout lang="es" title={t.construction.metaTitle} description={t.construction.metaDescription}>
+			<Construction lang="es" />
+		</BareLayout>
+	) : (
+		<Layout lang="es">
+			<Home lang="es" />
+		</Layout>
+	)
+}
