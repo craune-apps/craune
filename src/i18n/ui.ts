@@ -203,7 +203,7 @@ export const ui = {
 			subtitle:
 				'Escríbenos con dos líneas sobre tu proyecto. Respondemos en menos de 24 horas laborables y te decimos con franqueza si podemos ayudarte.',
 			emailLabel: 'Escríbenos a',
-			email: 'hola@craune.com',
+			email: 'contact@craune.com',
 			responseNote: 'Respuesta en menos de 24 h laborables',
 			form: {
 				name: 'Nombre',
@@ -226,7 +226,7 @@ export const ui = {
 				submitting: 'Enviando…',
 				successTitle: '¡Mensaje enviado!',
 				successBody: 'Gracias por escribirnos. Te respondemos en menos de 24 horas laborables.',
-				errorGeneric: 'No hemos podido enviar el mensaje. Inténtalo de nuevo o escríbenos directamente a hola@craune.com.',
+				errorGeneric: 'No hemos podido enviar el mensaje. Inténtalo de nuevo o escríbenos directamente a contact@craune.com.',
 				errorRequired: 'Rellena nombre, email y mensaje para poder responderte.',
 				errorEmail: 'Revisa la dirección de email, parece incompleta.',
 				privacy: 'Solo usamos tus datos para responderte. Nada de listas de correo.',
@@ -440,7 +440,7 @@ export const ui = {
 			subtitle:
 				'Send us a couple of lines about your project. We reply within one business day and tell you honestly whether we can help.',
 			emailLabel: 'Email us at',
-			email: 'hola@craune.com',
+			email: 'contact@craune.com',
 			responseNote: 'Reply within one business day',
 			form: {
 				name: 'Name',
@@ -463,7 +463,7 @@ export const ui = {
 				submitting: 'Sending…',
 				successTitle: 'Message sent!',
 				successBody: 'Thanks for reaching out. We will get back to you within one business day.',
-				errorGeneric: 'We could not send your message. Please try again or email us at hola@craune.com.',
+				errorGeneric: 'We could not send your message. Please try again or email us at contact@craune.com.',
 				errorRequired: 'Please fill in your name, email and message so we can reply.',
 				errorEmail: 'That email address looks incomplete — could you check it?',
 				privacy: 'We only use your details to reply. No mailing lists.',
