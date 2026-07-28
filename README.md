@@ -230,6 +230,47 @@ panel. Si no, un `wrangler deploy` desde local crea un Worker distinto y vacío.
 Desde ahí, cada push a `main` despliega solo y cada pull request genera una URL
 de vista previa.
 
+### Entorno de pruebas
+
+`staging.craune.com` es un **Worker distinto** (`craune-staging`), definido en el
+bloque `env.staging` de [`wrangler.jsonc`](wrangler.jsonc). Tiene sus propias
+variables de build, su propio secreto de Resend y su propio modo, así que puedes
+tener producción en obras y staging con la web completa, o al revés.
+
+Se construye desde la rama `staging` y **el entorno se elige al construir, no al
+desplegar**:
+
+```bash
+CLOUDFLARE_ENV=staging npm run build && npx wrangler deploy
+```
+
+Esto es importante y no es lo que uno esperaría. El adaptador de Astro resuelve
+`wrangler.jsonc` durante el build y escribe un `dist/server/wrangler.json` ya
+aplanado, al que wrangler se redirige. Para cuando corre `deploy`, el bloque
+`env` **ya no existe**: `wrangler deploy --env staging` no falla, simplemente
+ignora el entorno y **despliega sobre producción**.
+
+Si te equivocas escribiendo el nombre del entorno, el build falla y te lista los
+válidos. Ese camino es seguro.
+
+Configuración del Worker de staging en el panel:
+
+| Campo                                  | Valor                                |
+| -------------------------------------- | ------------------------------------ |
+| Git branch (producción del Worker)     | `staging`                            |
+| Build command                          | `CLOUDFLARE_ENV=staging npm run build` |
+| Deploy command                         | `npx wrangler deploy`                |
+| Build variable `SETTINGS`              | independiente de producción          |
+| Secret `RESEND_API_KEY`                | la clave de **desarrollo**           |
+
+En el Worker de producción, excluye la rama `staging` en **Branch control**. Si
+no, cada push a `staging` dispara también un build allí.
+
+El acceso se restringe con **Cloudflare Access** (Zero Trust, gratis hasta 50
+usuarios): una política sobre `staging.craune.com` que solo deje entrar a
+`@craune.com`, con PIN por correo si no quieres configurar proveedor de
+identidad. Sin eso, la URL es pública para quien la conozca.
+
 ### Opción B — desde tu máquina
 
 ```bash

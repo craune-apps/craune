@@ -18,7 +18,35 @@
 		"CONTACT_TO_EMAIL": "contact@craune.com",
 		// Remitente. El dominio debe estar verificado en Resend.
 		"CONTACT_FROM_EMAIL": "Craune Web <web@craune.com>"
-	}
+	},
 	// RESEND_API_KEY NO va aquí: es un secreto.
 	// Se sube con:  npx wrangler secret put RESEND_API_KEY
+
+	// ---------------------------------------------------------------------
+	// Entorno de pruebas: un Worker aparte, `craune-staging`.
+	//
+	// OJO con cómo se despliega. El adaptador de Astro resuelve esta
+	// configuración **durante el build** y genera un `dist/server/wrangler.json`
+	// ya aplanado, al que wrangler se redirige. Para cuando corre `deploy`, el
+	// bloque `env` ya no existe, así que `wrangler deploy --env staging`
+	// **desplegaría sobre producción**. El entorno se elige al construir:
+	//
+	//     CLOUDFLARE_ENV=staging npm run build && npx wrangler deploy
+	//
+	// `assets`, `main` y las fechas de compatibilidad se heredan de arriba.
+	// `vars` NO se hereda: si no se repite aquí, staging se queda sin ella
+	// y el formulario falla con el error genérico.
+	// ---------------------------------------------------------------------
+	"env": {
+		"staging": {
+			"name": "craune-staging",
+			"vars": {
+				// Los envíos de prueba van a una persona, no al grupo real,
+				// para no ensuciar la bandeja de contactos de verdad.
+				"CONTACT_TO_EMAIL": "alejandro.caballero@craune.com",
+				// El "(staging)" hace evidente en la bandeja de qué entorno vino.
+				"CONTACT_FROM_EMAIL": "Craune Web (staging) <web@craune.com>"
+			}
+		}
+	}
 }
