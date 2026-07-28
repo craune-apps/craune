@@ -1,6 +1,8 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "craune-landing",
+	// Debe coincidir con el nombre del Worker en Cloudflare. Si no, un
+	// `wrangler deploy` desde local crearía un Worker distinto y vacío.
+	"name": "craune",
 	"compatibility_date": "2026-07-27",
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"main": "@astrojs/cloudflare/entrypoints/server",
