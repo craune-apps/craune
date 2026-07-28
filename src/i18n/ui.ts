@@ -46,7 +46,7 @@ export const ui = {
 			ctaPrimary: 'Cuéntanos tu proyecto',
 			ctaSecondary: 'Ver lo que hacemos',
 			stats: [
-				{ value: '+12', label: 'Productos lanzados' },
+				{ value: '+5', label: 'Productos lanzados' },
 				{ value: '4', label: 'Plataformas: iOS, Android, web y API' },
 				{ value: '2 sem.', label: 'De la idea al primer prototipo' },
 			],
@@ -226,7 +226,8 @@ export const ui = {
 				submitting: 'Enviando…',
 				successTitle: '¡Mensaje enviado!',
 				successBody: 'Gracias por escribirnos. Te respondemos en menos de 24 horas laborables.',
-				errorGeneric: 'No hemos podido enviar el mensaje. Inténtalo de nuevo o escríbenos directamente a contact@craune.com.',
+				errorGeneric:
+					'No hemos podido enviar el mensaje. Inténtalo de nuevo o escríbenos directamente a contact@craune.com.',
 				errorRequired: 'Rellena nombre, email y mensaje para poder responderte.',
 				errorEmail: 'Revisa la dirección de email, parece incompleta.',
 				privacy: 'Solo usamos tus datos para responderte. Nada de listas de correo.',
@@ -246,7 +247,7 @@ export const ui = {
 			metaTitle: 'Craune — Próximamente',
 			metaDescription: 'Estamos terminando nuestra web. Vuelve pronto o escríbenos mientras tanto.',
 			eyebrow: 'Próximamente',
-			title: 'Estamos construyendo la nuestra',
+			title: 'Estamos construyendo',
 			body: 'Nos dedicamos a lanzar productos digitales para otros, así que la web de Craune tenía que estar a la altura. Estamos en ello.',
 			emailLabel: 'Mientras tanto, escríbenos a',
 		},
@@ -339,8 +340,7 @@ export const ui = {
 		work: {
 			eyebrow: 'Work',
 			title: 'A few things we have built',
-			subtitle:
-				'A sample of the kind of product we are comfortable with. Happy to show you more on a call.',
+			subtitle: 'A sample of the kind of product we are comfortable with. Happy to show you more on a call.',
 			viewLabel: 'View project',
 			items: [
 				{
@@ -460,13 +460,7 @@ export const ui = {
 				company: 'Company',
 				companyPlaceholder: 'Optional',
 				budget: 'Approximate budget',
-				budgetOptions: [
-					'Not sure yet',
-					'Under €10,000',
-					'€10,000 – €30,000',
-					'€30,000 – €75,000',
-					'Over €75,000',
-				],
+				budgetOptions: ['Not sure yet', 'Under €10,000', '€10,000 – €30,000', '€30,000 – €75,000', 'Over €75,000'],
 				message: 'Your project',
 				messagePlaceholder: 'What you want to build, who it is for, and when you would like it live.',
 				submit: 'Send message',
