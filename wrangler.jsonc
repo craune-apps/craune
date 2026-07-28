@@ -13,6 +13,9 @@
 	"observability": {
 		"enabled": true
 	},
+	// Valores por defecto. Los entornos de abajo los reemplazan: `vars` no se
+	// hereda, cada entorno declara los suyos. Se dejan aquí porque wrangler los
+	// necesita para comandos que corren sin entorno, como `wrangler types`.
 	"vars": {
 		// Dirección que recibe los mensajes del formulario.
 		"CONTACT_TO_EMAIL": "contact@craune.com",
@@ -42,6 +45,13 @@
 	// y el formulario falla con el error genérico.
 	// ---------------------------------------------------------------------
 	"env": {
+		"production": {
+			"name": "craune",
+			"vars": {
+				"CONTACT_TO_EMAIL": "contact@craune.com",
+				"CONTACT_FROM_EMAIL": "Craune Web <web@craune.com>"
+			}
+		},
 		"staging": {
 			"name": "craune-staging",
 			"vars": {

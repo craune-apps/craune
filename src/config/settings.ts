@@ -50,18 +50,43 @@ function readSettings(): Settings {
 export const settings = readSettings();
 
 /**
- * Entorno de Cloudflare con el que se construyó, tomado de `CLOUDFLARE_ENV`.
- * En producción no se define, y de ahí sale `isProduction`.
- *
- * Hay que mirar en los dos sitios, y no es un cinturón y tirantes: el build
- * evalúa este módulo en dos contextos distintos y la variable llega por un
- * camino diferente en cada uno. Al renderizar las páginas solo existe en
- * `import.meta.env`; en `astro.config`, solo en `process.env`.
+ * Entornos válidos. Deben existir como bloques `env.*` en `wrangler.jsonc`:
+ * `CLOUDFLARE_ENV` la lee también el plugin de Cloudflare para elegir a qué
+ * Worker se despliega, y un nombre que no exista allí rompe el build.
  */
-export const environment =
-	(typeof process !== 'undefined' ? process.env?.CLOUDFLARE_ENV : undefined) ||
-	(import.meta.env.CLOUDFLARE_ENV as string | undefined) ||
-	'production';
+const ENVIRONMENTS = ['production', 'staging'] as const;
+
+export type Environment = (typeof ENVIRONMENTS)[number];
+
+function readEnvironment(): Environment {
+	// Hay que mirar en los dos sitios, y no es cinturón y tirantes: el build
+	// evalúa este módulo en dos contextos distintos y la variable llega por un
+	// camino diferente en cada uno. Al renderizar las páginas solo existe en
+	// `import.meta.env`; en `astro.config`, solo en `process.env`.
+	const raw =
+		(typeof process !== 'undefined' ? process.env?.CLOUDFLARE_ENV : undefined) ||
+		(import.meta.env.CLOUDFLARE_ENV as string | undefined);
+
+	// Deliberadamente no hay valor por defecto. Asumir producción cuando falta
+	// es justo el fallo que no queremos: un despliegue de staging mal
+	// configurado se creería producción y se publicaría como tal.
+	if (!raw) {
+		throw new Error(
+			`Falta CLOUDFLARE_ENV. Debe ser uno de: ${ENVIRONMENTS.join(', ')}.\n` +
+				'  · en local, en el fichero `.env` (copia `.env.example`)\n' +
+				'  · en Cloudflare, en las variables de *build* del Worker',
+		);
+	}
+
+	if (!ENVIRONMENTS.includes(raw as Environment)) {
+		throw new Error(`CLOUDFLARE_ENV="${raw}" no es un entorno válido. Debe ser uno de: ${ENVIRONMENTS.join(', ')}.`);
+	}
+
+	return raw as Environment;
+}
+
+/** Entorno con el que se construyó el sitio. */
+export const environment = readEnvironment();
 
 /**
  * Solo producción debe aparecer en buscadores. Staging sirve el mismo

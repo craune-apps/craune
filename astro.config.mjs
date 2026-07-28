@@ -1,11 +1,17 @@
 // @ts-check
+
+// Debe ser el primer import: carga `.env` en process.env antes de que se
+// evalúe la configuración. Astro lo lee también, pero más tarde, y sin esto
+// este fichero no vería lo que sí ven las páginas.
+import './src/config/load-env.mjs';
+
 import { defineConfig } from 'astro/config';
 
 import cloudflare from '@astrojs/cloudflare';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
-import { settings } from './src/config/settings';
+import { isProduction, settings } from './src/config/settings';
 
 // https://astro.build/config
 export default defineConfig({
@@ -34,10 +40,14 @@ export default defineConfig({
 
 	integrations: [
 		sitemap({
-			// Las páginas de confirmación no aportan nada en buscadores. Con la web
-			// en obras no se indexa nada, así que el sitemap no llega a generarse;
-			// `src/pages/robots.txt.ts` deja de anunciarlo en ese caso.
-			filter: (page) => !settings.inConstruction && !/\/(gracias|thanks)\/?$/.test(page),
+			// Solo producción en modo normal publica sitemap. En obras no hay nada
+			// que indexar, y staging sirve el mismo contenido que producción, así
+			// que anunciarlo la haría competir consigo misma. Cuando el filtro deja
+			// la lista vacía, la integración ni siquiera crea el fichero, y
+			// `src/pages/robots.txt.ts` deja de anunciarlo.
+			// Las páginas de confirmación nunca aportan nada en buscadores.
+			filter: (page) =>
+				isProduction && !settings.inConstruction && !/\/(gracias|thanks)\/?$/.test(page),
 			i18n: {
 				defaultLocale: 'es',
 				locales: { es: 'es-ES', en: 'en-US' },

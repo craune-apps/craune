@@ -80,8 +80,15 @@ preferible a publicar la web entera cuando querías dejarla en obras.
 ### En local
 
 ```bash
-cp .env.example .env     # y pon dentro inConstruction a true o false
+cp .env.example .env     # y ajusta CLOUDFLARE_ENV y inConstruction
 npx astro dev stop && npm run dev
+```
+
+`.env` lleva las dos variables de build:
+
+```
+CLOUDFLARE_ENV=production     # o `staging`
+SETTINGS={"inConstruction":false}
 ```
 
 Hay que **reiniciar el servidor**: el valor se lee al arrancar, no hay recarga
@@ -102,11 +109,18 @@ y se pulsa **Retry deployment**.
 
 Es lo único que se presta a confusión en este proyecto:
 
-| Fichero           | Lo lee | Cuándo               | Contiene                        |
-| ----------------- | ------ | -------------------- | ------------------------------- |
-| `.env`            | Astro  | al construir         | `SETTINGS`                      |
-| `.dev.vars`       | Worker | en cada petición     | `RESEND_API_KEY`, emails        |
-| `wrangler.jsonc`  | Worker | en producción        | emails públicos                 |
+| Fichero           | Lo lee | Cuándo               | Contiene                            |
+| ----------------- | ------ | -------------------- | ----------------------------------- |
+| `.env`            | Astro  | al construir         | `CLOUDFLARE_ENV`, `SETTINGS`        |
+| `.dev.vars`       | Worker | en cada petición     | `RESEND_API_KEY`, emails            |
+| `wrangler.jsonc`  | Worker | en producción        | emails públicos, por entorno        |
+
+Una peculiaridad de `.env` que conviene conocer: Astro lo carga con Vite
+**después** de leer `astro.config.mjs`, así que la configuración no vería esas
+variables y construiría con valores distintos de los de las páginas. Por eso
+[`src/config/load-env.mjs`](src/config/load-env.mjs) lo carga a mano como primer
+import de la configuración. Una variable puesta en la shell sigue teniendo
+prioridad sobre el fichero.
 
 ## Antes de publicar
 
@@ -217,8 +231,14 @@ consumen cuota. Lo único que se paga es el dominio (~10-15 €/año).
 
    | Variable          | Dónde                                | Tipo     |
    | ----------------- | ------------------------------------ | -------- |
+   | `CLOUDFLARE_ENV`  | Settings → **Build**                 | Variable |
    | `SETTINGS`        | Settings → **Build**                 | Variable |
    | `RESEND_API_KEY`  | Settings → Variables and Secrets     | Secret   |
+
+   En el Worker de producción, `CLOUDFLARE_ENV` vale `production`. **No es
+   opcional**: si falta, el build falla. Es deliberado — asumir producción
+   cuando nadie lo ha dicho es la forma de publicar sin querer algo que no
+   debía publicarse.
 
    `SETTINGS` la lee Astro al construir; `RESEND_API_KEY` la lee el Worker en
    cada envío del formulario. Ponerlas al revés no da error: simplemente no
