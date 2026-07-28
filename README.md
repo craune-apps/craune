@@ -27,15 +27,19 @@ El servidor de desarrollo queda en segundo plano. Para pararlo: `npx astro dev s
 
 ```
 src/
+├── config/settings.ts   ← el modo "en construcción", resuelto en el build
 ├── i18n/
 │   ├── ui.ts            ← TODO el texto de la web, en ES y EN
 │   └── utils.ts         ← detección de idioma y rutas traducidas
-├── layouts/Layout.astro ← <head>, SEO, hreflang, animaciones de scroll
+├── layouts/
+│   ├── Layout.astro     ← <head>, SEO, hreflang, animaciones de scroll
+│   └── BareLayout.astro ← sin cabecera ni pie; solo para la página de obras
 ├── components/          ← una sección de la home por fichero
 ├── pages/
 │   ├── index.astro      ← portada ES  (/)
 │   ├── gracias.astro    ← confirmación ES
 │   ├── en/              ← portada EN  (/en/) y confirmación
+│   ├── robots.txt.ts    ← generado en el build: su contenido depende del modo
 │   └── api/contact.ts   ← el único endpoint de servidor
 └── styles/global.css    ← design tokens (colores, tipografías, escalas)
 ```
@@ -52,12 +56,68 @@ Los colores, tipografías y escalas están en el bloque `@theme` de
 [`src/styles/global.css`](src/styles/global.css). Cambiar `--color-gold` cambia
 el acento de toda la web.
 
+## Modo "en construcción"
+
+La web tiene dos modos. Con el modo obras activo, **todas** las rutas sirven una
+página mínima de "próximamente" y el contenido real ni siquiera llega al HTML
+generado: no está oculto, no existe. Además `robots.txt` responde `Disallow: /`
+y no se genera sitemap.
+
+Lo controla la variable `SETTINGS`, con forma JSON:
+
+```json
+{ "inConstruction": true }
+```
+
+Es una variable **de build**, no de ejecución. Se resuelve al construir el sitio
+y su valor queda horneado en el HTML, que es lo que permite seguir sirviendo
+páginas estáticas desde el CDN sin ejecutar el Worker. El precio de esa decisión
+es que **cambiar de modo exige volver a desplegar** (menos de un minuto).
+
+Si `SETTINGS` contiene un JSON inválido, el build falla a propósito: es
+preferible a publicar la web entera cuando querías dejarla en obras.
+
+### En local
+
+```bash
+cp .env.example .env     # y pon dentro inConstruction a true o false
+npx astro dev stop && npm run dev
+```
+
+Hay que **reiniciar el servidor**: el valor se lee al arrancar, no hay recarga
+en caliente. Para una prueba puntual sin tocar el fichero, la variable de la
+shell tiene prioridad sobre el `.env`:
+
+```bash
+SETTINGS='{"inConstruction":true}' npm run dev
+```
+
+### En producción
+
+En el panel del Worker, en los ajustes de **Build** → *Variables and secrets*
+(no confundir con las de ejecución, que están en otro sitio). Se cambia el valor
+y se pulsa **Retry deployment**.
+
+### Los tres ficheros de configuración
+
+Es lo único que se presta a confusión en este proyecto:
+
+| Fichero           | Lo lee | Cuándo               | Contiene                        |
+| ----------------- | ------ | -------------------- | ------------------------------- |
+| `.env`            | Astro  | al construir         | `SETTINGS`                      |
+| `.dev.vars`       | Worker | en cada petición     | `RESEND_API_KEY`, emails        |
+| `wrangler.jsonc`  | Worker | en producción        | emails públicos                 |
+
 ## Antes de publicar
 
-Hay contenido de relleno que debes sustituir:
+Hay contenido de relleno que debes sustituir. Mientras el **modo obras** esté
+activo nada de esto es visible, pero todo tiene que estar resuelto antes de
+desactivarlo:
 
-- [ ] **Dominio** — `site:` en [`astro.config.mjs`](astro.config.mjs) y la línea
-      `Sitemap:` de [`public/robots.txt`](public/robots.txt) apuntan a `https://craune.com`.
+- [x] **Dominio** — `craune.com`, en `site:` de [`astro.config.mjs`](astro.config.mjs).
+      El `Sitemap:` de `robots.txt` lo deriva de ahí, no hay que tocarlo aparte.
+- [x] **Emails** — `contact@craune.com` (un grupo de Workspace) recibe, y
+      `web@craune.com` envía. En `ui.ts` y `wrangler.jsonc`.
 - [ ] **Proyectos** — `work.items` en `ui.ts` son tres ejemplos genéricos
       ("Proyecto Uno", "Proyecto Dos"…).
 - [ ] **Testimonios** — `testimonials.items` son placeholders con
@@ -68,8 +128,9 @@ Hay contenido de relleno que debes sustituir:
       ajústalas a la realidad.
 - [ ] **Redes sociales** — el footer enlaza a `github.com/craune-apps`,
       `linkedin.com/company/craune` y `x.com/craune`. Verifica que existen o quítalos.
-- [ ] **Emails** — `hola@craune.com` y `web@craune.com`, en `ui.ts` y `wrangler.jsonc`.
-- [ ] **Imagen de compartir** — `public/og.png` lleva el titular en español.
+      Están además en el `sameAs` de [`Layout.astro`](src/layouts/Layout.astro).
+- [ ] **Imagen de compartir** — `public/og.png` lleva el titular en español, y la
+      versión inglesa usa la misma.
 
 ## Formulario de contacto
 
@@ -90,6 +151,11 @@ cp .dev.vars.example .dev.vars   # y pon dentro tu clave de Resend
 `.dev.vars` está en `.gitignore`. Tras crearlo hay que reiniciar el servidor
 (`npx astro dev stop && npm run dev`) para que lo lea.
 
+Usa **una clave distinta** de la de producción. La de local vive en texto plano
+en tu portátil; si se filtra, la revocas sin tumbar la web. En Resend créala con
+permiso *Sending access* y restringida a `craune.com`: la web solo envía, no
+necesita poder borrar dominios ni crear claves.
+
 ### Configuración en producción
 
 Las direcciones públicas están en `vars` dentro de [`wrangler.jsonc`](wrangler.jsonc).
@@ -99,9 +165,29 @@ La clave de Resend es un secreto y va aparte:
 npx wrangler secret put RESEND_API_KEY
 ```
 
-En Resend hay que **verificar el dominio** desde el que se envía
-(`CONTACT_FROM_EMAIL`) añadiendo unos registros DNS. Hasta entonces solo se puede
-enviar desde su dominio de pruebas.
+El valor **no se pasa como argumento**: wrangler lo pide por un prompt oculto.
+Si despliegas con la integración de Git, mejor añadirlo desde el panel.
+
+### Resend: lo que no es obvio
+
+**Hasta verificar el dominio** solo se puede enviar desde `onboarding@resend.dev`
+y **solo a la dirección con la que se registró la cuenta**. Un alias no vale.
+El error es un `403 validation_error`, no un fallo de configuración tuyo.
+
+**Al verificar el dominio**, Resend pone sus registros en el subdominio `send`
+(`MX` y `SPF` en `send.craune.com`, más un `DKIM` con selector `resend`). **No
+toca el `MX` de la raíz**, así que el correo de Google Workspace sigue igual: los
+dos DKIM conviven porque usan selectores distintos.
+
+**`contact@craune.com` es un grupo de Workspace**, no un buzón. Aunque el
+remitente sea del propio dominio, el mensaje entra por servidores de Resend y
+Google lo trata como **externo**: el grupo necesita "Quiénes pueden publicar" en
+*Cualquier usuario en la Web*, o los mensajes se pierden en silencio.
+
+**Reenvío y SPF.** Cuando el grupo reparte el mensaje a sus miembros lo reenvía,
+y eso rompe el SPF por diseño. El DKIM sí sobrevive al reenvío, que es la razón
+de peso para verificar el dominio en Resend. Aun así conviene un filtro en Gmail
+sobre `contact@craune.com` con *"Nunca enviarlo a Spam"*.
 
 ## Despliegue en Cloudflare
 
@@ -112,8 +198,34 @@ consumen cuota. Lo único que se paga es el dominio (~10-15 €/año).
 
 1. Panel de Cloudflare → **Workers & Pages → Create → Workers → Import a repository**.
 2. Elige `craune-apps/craune`.
-3. Build command `npm run build`, directorio de salida `dist`.
-4. En **Settings → Variables and Secrets**, añade `RESEND_API_KEY` como *Secret*.
+3. Rellena la configuración de build. Ojo: el flujo de Workers **no tiene campo
+   "directorio de salida"** — eso es de Pages. Aquí sobra, porque
+   [`wrangler.jsonc`](wrangler.jsonc) ya declara `"directory": "./dist"`.
+
+   | Campo                                  | Valor                        |
+   | -------------------------------------- | ---------------------------- |
+   | Build command                          | `npm run build`              |
+   | Deploy command                         | `npx wrangler deploy`        |
+   | Non-production branch deploy command   | `npx wrangler versions upload` |
+   | Root directory                         | vacío                        |
+
+   El tercero importa: si ahí pones `npx wrangler deploy`, **cualquier push a
+   cualquier rama despliega a producción**. Con `versions upload`, las ramas
+   generan una vista previa y producción no se toca.
+
+4. Las variables van en **dos sitios distintos** con nombres casi idénticos:
+
+   | Variable          | Dónde                                | Tipo     |
+   | ----------------- | ------------------------------------ | -------- |
+   | `SETTINGS`        | Settings → **Build**                 | Variable |
+   | `RESEND_API_KEY`  | Settings → Variables and Secrets     | Secret   |
+
+   `SETTINGS` la lee Astro al construir; `RESEND_API_KEY` la lee el Worker en
+   cada envío del formulario. Ponerlas al revés no da error: simplemente no
+   funcionan.
+
+El nombre del Worker (`name` en `wrangler.jsonc`) debe coincidir con el del
+panel. Si no, un `wrangler deploy` desde local crea un Worker distinto y vacío.
 
 Desde ahí, cada push a `main` despliega solo y cada pull request genera una URL
 de vista previa.
@@ -129,6 +241,18 @@ npx wrangler deploy
 
 En el Worker: **Settings → Domains & Routes → Add custom domain**. Si el dominio
 está en Cloudflare, el DNS y el certificado HTTPS se configuran solos.
+
+El `www` **no** se añade como segundo dominio del Worker: se redirige al raíz,
+para no servir el mismo contenido en dos direcciones. Hacen falta dos piezas,
+porque los Redirect Rules solo actúan sobre tráfico proxeado:
+
+1. Un registro `AAAA` en `www` apuntando a `100::` (dirección de descarte del
+   RFC 6666, no enruta a ningún sitio) con el **proxy activado**, nube naranja.
+2. Un Redirect Rule 301 de `www.craune.com` al raíz, conservando ruta y query
+   string.
+
+Cuidado al tocar el DNS: los registros de correo (`MX`, `SPF`, `DKIM`) van en
+gris, **DNS only**. Solo los que sirven web van en naranja.
 
 ## Notas técnicas
 
