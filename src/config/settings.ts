@@ -48,3 +48,24 @@ function readSettings(): Settings {
 }
 
 export const settings = readSettings();
+
+/**
+ * Entorno de Cloudflare con el que se construyó, tomado de `CLOUDFLARE_ENV`.
+ * En producción no se define, y de ahí sale `isProduction`.
+ *
+ * Hay que mirar en los dos sitios, y no es un cinturón y tirantes: el build
+ * evalúa este módulo en dos contextos distintos y la variable llega por un
+ * camino diferente en cada uno. Al renderizar las páginas solo existe en
+ * `import.meta.env`; en `astro.config`, solo en `process.env`.
+ */
+export const environment =
+	(typeof process !== 'undefined' ? process.env?.CLOUDFLARE_ENV : undefined) ||
+	(import.meta.env.CLOUDFLARE_ENV as string | undefined) ||
+	'production';
+
+/**
+ * Solo producción debe aparecer en buscadores. Staging sirve el mismo
+ * contenido, así que sin esto competiría con la web real por las mismas
+ * búsquedas — y encima su URL es pública mientras no tenga Access delante.
+ */
+export const isProduction = environment === 'production';
