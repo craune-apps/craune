@@ -255,13 +255,19 @@ válidos. Ese camino es seguro.
 
 Configuración del Worker de staging en el panel:
 
-| Campo                                  | Valor                                |
-| -------------------------------------- | ------------------------------------ |
-| Git branch (producción del Worker)     | `staging`                            |
-| Build command                          | `CLOUDFLARE_ENV=staging npm run build` |
-| Deploy command                         | `npx wrangler deploy`                |
-| Build variable `SETTINGS`              | independiente de producción          |
-| Secret `RESEND_API_KEY`                | la clave de **desarrollo**           |
+| Campo                             | Valor                       |
+| --------------------------------- | --------------------------- |
+| Git branch (producción del Worker)| `staging`                   |
+| Build command                     | `npm run build`             |
+| Deploy command                    | `npx wrangler deploy`       |
+| Build variable `CLOUDFLARE_ENV`   | `staging`                   |
+| Build variable `SETTINGS`         | independiente de producción |
+| Secret `RESEND_API_KEY`           | la clave de **desarrollo**  |
+
+`CLOUDFLARE_ENV` va como variable de build en vez de en el comando: da igual
+cuál de las dos, Cloudflare las exporta al entorno igualmente. Lo que importa es
+que **no falte**. Si el Worker de staging se queda sin ella, el build se
+resuelve como producción.
 
 En el Worker de producción, excluye la rama `staging` en **Branch control**. Si
 no, cada push a `staging` dispara también un build allí.

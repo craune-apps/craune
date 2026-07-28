@@ -29,9 +29,13 @@
 	// configuración **durante el build** y genera un `dist/server/wrangler.json`
 	// ya aplanado, al que wrangler se redirige. Para cuando corre `deploy`, el
 	// bloque `env` ya no existe, así que `wrangler deploy --env staging`
-	// **desplegaría sobre producción**. El entorno se elige al construir:
+	// **desplegaría sobre producción**. El entorno se elige al construir, con
+	// la variable de entorno CLOUDFLARE_ENV:
 	//
 	//     CLOUDFLARE_ENV=staging npm run build && npx wrangler deploy
+	//
+	// En Cloudflare esa variable está declarada entre las de *build* del Worker
+	// de staging, así que allí el comando es un `npm run build` normal.
 	//
 	// `assets`, `main` y las fechas de compatibilidad se heredan de arriba.
 	// `vars` NO se hereda: si no se repite aquí, staging se queda sin ella
